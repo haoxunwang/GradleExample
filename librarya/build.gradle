@@ -1,0 +1,62 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion gradle.api as int
+    buildToolsVersion = "27.0.0"
+    sourceSets { //配置源码路径。这个sourceSets是Java插件引入的
+        main { //main：Android也用了
+            manifest.srcFile 'src/main/AndroidManifest.xml' //这是一个函数，设置manifest.srcFile
+            aidl.srcDirs = ['src'] //设置aidl文件的目录
+            java.srcDirs = ['src'] //设置java文件的目录
+        }
+
+    }
+
+    defaultConfig {
+        minSdkVersion 15
+        targetSdkVersion 21
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+//clean是一个Task的名字，这个Task好像是Java插件（这里是Android插件）引入的。
+//dependsOn是一个函数，下面这句话的意思是 clean任务依赖CleanTask任务。所以
+//当你gradle clean以执行clean Task的时候，CleanTask也会执行
+clean.dependsOn 'CleanTask'
+//创建一个Task，
+task CleanTask() << {
+    cleanOutput(true)  //cleanOutput是utils.gradle中通过extra属性设置的Closure
+}
+
+tasks.getByName('assemble') {
+    it.doLast {
+        println '$project.name: After assemble,jar libs are copied to local repository.'
+        copyOutput(true)
+    }
+}
+
+/*
+   提供最终的release编译出来的Jar包给外界使用，所以不需要编译debug版本的产物
+  当Project创建完所有任务的有向图后，我通过afterEvaluate函数设置一个回调Closure。在这个回调
+  Closure里，我disable了所有Debug的Task
+ */
+project.afterEvaluate {
+    disableDebugBuild()
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation 'com.android.support:appcompat-v7:26.0.1'
+}

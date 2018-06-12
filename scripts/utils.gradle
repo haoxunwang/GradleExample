@@ -1,12 +1,84 @@
-// get version name by parse AndroidManifest.xml file
+/**
+ * 拷贝函数，用于将最后的生物拷贝到指定的目录
+ * @param srcFile
+ * @param dstFile
+ */
+def copyFile(String srcFile, String destFile) {
+    def bundleName = "/$project.name" + "_" + "$project.android.defaultConfig.versionName" + ".jar"
+    def src = new File(srcFile)
+    def target = new File(destFile + bundleName)
+    target.withOutputStream { os ->
+        src.withInputStream { ins ->
+            os << ins
+        }
+    }
+}
+
+/**
+ * 删除指定目录中的文件
+ * @param targetFile
+ */
+def rmFile(String targetFile) {
+
+}
+
+/**
+ * clean 的时候清理
+ * @param bJar
+ */
+def cleanOutput(boolean bJar = true) {
+    def destPath = project.buildDir.absolutePath + "/jar"
+    def file = new File(destPath)
+    file.deleteDir()
+}
+
+/**
+ * copyOutput内部会调用copyFile完成一次build的产出物拷贝
+ * @param bJar
+ */
+def copyOutput(boolean bJar = true) {
+
+    def srcFile = project.buildDir.absolutePath + "/intermediates/bundles/release/classes.jar"
+    def destPath = project.buildDir.absolutePath + "/jar"
+
+    def destFile = mkdir(destPath).getAbsolutePath()
+
+    copyFile(srcFile, destFile)
+}
+
+/**
+ * get version name by parse AndroidManifest.xml file
+ * @return
+ */
 def getVersionNameAdvanced() {
     def xmlFile = project.file("src/main/AndroidManifest.xml")
     def rootManifest = new XmlSlurper().parse(xmlFile)
     return rootManifest['@android:versionName']
 }
 
+/**
+ * 对于Android Library编译，disable所有debug编译任务
+ * @return
+ */
+def disableDebugBuild() {
+    def targetTasks = project.tasks.findAll { task ->
+        task.name.contains('Debug')
+    }
+
+    targetTasks.each {
+        println("disable debug task : ${it.name}")
+        it.setEnabled false
+    }
+}
+
 // 闭包，ext{}不是ext(Closure)对应函数调用！
 ext {
+    copyFile = this.&copyFile
+    rmFile = this.&rmFile
+    cleanOutput = this.&cleanOutput
+    copyOutput = this.&copyOutput
+
     // 把getVersionNameAdvanced定义成一个closure，赋值到一个外部属性。
     getVersionNameAdvanced = this.&getVersionNameAdvanced
+    disableDebugBuild = this.&disableDebugBuild
 }
