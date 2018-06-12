@@ -25,3 +25,9 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+// Test gradle instance
+println "In GlideTest, gradle id is " + gradle.hashCode()
+println "Home Dir: " + gradle.gradleHomeDir
+println "User Home Dir: " + gradle.gradle.gradleUserHomeDir
+println "Parent: " + gradle.parent

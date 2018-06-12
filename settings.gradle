@@ -1,1 +1,7 @@
 include ':app'
+
+// Test gradle instance
+println "In Settings, gradle id is " + gradle.hashCode()
+println "Home Dir: " + gradle.gradleHomeDir
+println "User Home Dir: " + gradle.gradle.gradleUserHomeDir
+println "Parent: " + gradle.parent
