@@ -1,0 +1,12 @@
+// get version name by parse AndroidManifest.xml file
+def getVersionNameAdvanced() {
+    def xmlFile = project.file("src/main/AndroidManifest.xml")
+    def rootManifest = new XmlSlurper().parse(xmlFile)
+    return rootManifest['@android:versionName']
+}
+
+// 闭包，ext{}不是ext(Closure)对应函数调用！
+ext {
+    // 把getVersionNameAdvanced定义成一个closure，赋值到一个外部属性。
+    getVersionNameAdvanced = this.&getVersionNameAdvanced
+}
