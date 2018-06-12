@@ -5,3 +5,15 @@ println "In Settings, gradle id is " + gradle.hashCode()
 println "Home Dir: " + gradle.gradleHomeDir
 println "User Home Dir: " + gradle.gradle.gradleUserHomeDir
 println "Parent: " + gradle.parent
+
+// Test setting extra property for Gradle instance
+def initGradleEnvironment() {
+    def/*Properties*/ properties = new Properties()
+    def/*File*/ propertyFile = new File(rootDir.getAbsolutePath() + "/local.properties")
+    properties.load(propertyFile.newDataInputStream())
+
+    gradle.ext.api = properties.getProperty('sdk.api')
+    println gradle.api
+}
+
+initGradleEnvironment()
